@@ -1,4 +1,7 @@
 import { cleaningServices } from "@/config/pricing";
+import { CalculationProvider } from "@/components/calculator/CalculationState";
+import { Calculator } from "@/components/calculator/Calculator";
+import { LeadCalculation } from "@/components/calculator/LeadCalculation";
 import {
   benefits,
   howItWorksSteps,
@@ -91,10 +94,11 @@ export default function Home() {
           </div>
         </section>
 
+        <CalculationProvider>
         <section
           className="section calculator-section"
           id="calculator"
-          aria-labelledby="calculator-title"
+          aria-label="Калькулятор уборки"
         >
           <div className="container calculator-grid">
             <div className="calculator-intro">
@@ -102,25 +106,10 @@ export default function Home() {
               <h2 id="calculator-title">Начните с ориентировочной цены</h2>
               <p>
                 Выберите вид уборки, укажите площадь и дополнительные услуги.
-                Цена появится сразу после расчёта.
+                Ориентировочная цена меняется сразу при выборе параметров.
               </p>
             </div>
-            <div className="calculator-shell">
-              <div className="shell-topline">
-                <span>Ваш расчёт</span>
-                <span>01 / 02</span>
-              </div>
-              <p className="shell-title">
-                Подберём уборку под ваше пространство
-              </p>
-              <p>
-                Интерактивный расчёт появится на следующем этапе разработки.
-              </p>
-              <div className="shell-divider" />
-              <span className="shell-caption">
-                Виды уборки · площадь · дополнительные услуги
-              </span>
-            </div>
+            <Calculator />
           </div>
         </section>
 
@@ -197,31 +186,26 @@ export default function Home() {
         <section
           className="section lead-section"
           id="lead"
-          aria-labelledby="lead-title"
+          aria-label="Заявка"
         >
           <div className="container lead-grid">
             <div>
               <p className="eyebrow">Заявка</p>
               <h2 id="lead-title">Остался один шаг до чистоты</h2>
               <p>
-                После расчёта здесь можно будет оставить контакты. Мы уточним
-                детали и согласуем удобное время.
+                Ваш расчёт сохранится здесь. На следующем этапе появится форма
+                для контактов; затем мы сможем уточнить детали и время.
               </p>
               <p className="contact-note">
                 Связь через Telegram и MAX появится после настройки контактов
                 компании.
               </p>
             </div>
-            <div className="lead-shell">
-              <span className="shell-topline">Ваша заявка</span>
-              <p className="shell-title">Расчёт и форма заявки</p>
-              <p>
-                Форма будет доступна после подключения калькулятора и отправки
-                заявок.
-              </p>
-            </div>
+            <LeadCalculation />
           </div>
         </section>
+
+        </CalculationProvider>
 
         <section className="final-cta" aria-labelledby="final-cta-title">
           <div className="container final-cta-inner">
