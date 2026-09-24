@@ -2,6 +2,7 @@
 
 import { CalculationSummary } from "./CalculationSummary";
 import { useCalculation } from "./CalculationState";
+import { LeadForm } from "@/components/lead/LeadForm";
 
 export function LeadCalculation() {
   const { calculation } = useCalculation();
@@ -15,7 +16,7 @@ export function LeadCalculation() {
       ) : (
         <p>Укажите допустимую площадь в калькуляторе, чтобы перейти к заявке.</p>
       )}
-      <p className="lead-next-stage">Форма заявки появится на следующем этапе.</p>
+      <LeadForm />
     </div>
   );
 }
