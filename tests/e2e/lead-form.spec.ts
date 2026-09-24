@@ -1,6 +1,9 @@
 import { expect, test } from "@playwright/test";
 
+const liveMode = process.env.SITE_MODE === "live";
+
 test("validates fields and calculation before sending", async ({ page }) => {
+  test.skip(!liveMode, "Portfolio mode is active");
   let sent = 0;
   await page.route("**/api/leads", async (route) => {
     sent += 1;
@@ -24,6 +27,7 @@ test("validates fields and calculation before sending", async ({ page }) => {
 });
 
 test("shows submitting and success with the current calculation", async ({ page }) => {
+  test.skip(!liveMode, "Portfolio mode is active");
   let complete: (() => void) | undefined;
   const pending = new Promise<void>((resolve) => { complete = resolve; });
   let payload: unknown;
@@ -37,7 +41,8 @@ test("shows submitting and success with the current calculation", async ({ page 
   await page.goto("/#calculator");
   await page.getByRole("spinbutton", { name: "Площадь, м²" }).fill("100");
   await page.getByRole("checkbox", { name: "Мытьё окон" }).check();
-  await page.getByRole("link", { name: "Перейти к заявке" }).click();
+  await page.getByRole("region", { name: "Калькулятор уборки" })
+    .getByRole("link", { name: "Перейти к заявке" }).click();
   const lead = page.getByRole("region", { name: "Заявка" });
   await expect(lead.getByTestId("estimated-price")).toHaveText("6 000 ₽");
   await lead.getByRole("textbox", { name: "Ваше имя" }).fill(" Анна ");
@@ -53,6 +58,7 @@ test("shows submitting and success with the current calculation", async ({ page 
 });
 
 test("keeps form and calculation after a failed request, then retries", async ({ page }) => {
+  test.skip(!liveMode, "Portfolio mode is active");
   let attempts = 0;
   await page.route("**/api/leads", async (route) => {
     attempts += 1;
@@ -71,6 +77,21 @@ test("keeps form and calculation after a failed request, then retries", async ({
   await lead.getByRole("button", { name: "Отправить заявку" }).click();
   await expect(lead.getByText("Заявка отправлена")).toBeVisible();
   expect(attempts).toBe(2);
+});
+
+test("portfolio form shows a demo notice without sending personal data", async ({ page }) => {
+  test.skip(liveMode, "Live mode is active");
+  let sent = 0;
+  await page.route("**/api/leads", async (route) => {
+    sent += 1;
+    await route.abort();
+  });
+  await page.goto("/#lead");
+  const lead = page.getByRole("region", { name: "Заявка" });
+  await expect(lead.getByText(/Данные не отправляются/)).toBeVisible();
+  await lead.getByRole("button", { name: "Отправить заявку" }).click();
+  await expect(lead.getByRole("status")).toContainText("Демо");
+  expect(sent).toBe(0);
 });
 
 for (const width of [320, 390, 1280]) {
@@ -104,7 +125,7 @@ test("form controls can be reached with keyboard and reloads without hydration e
   await page.keyboard.press("Tab");
   await expect(lead.getByRole("textbox", { name: "Телефон" })).toBeFocused();
   await page.keyboard.press("Tab");
-  await expect(lead.getByRole("checkbox", { name: /Согласен/ })).toBeFocused();
+  await expect(lead.getByRole("checkbox", { name: liveMode ? /Согласен/ : /Демо-согласие/ })).toBeFocused();
   await page.getByRole("spinbutton", { name: "Площадь, м²" }).fill("80");
   await expect(lead.getByTestId("estimated-price")).toHaveText("3 600 ₽");
   expect(hydrationErrors).toEqual([]);

@@ -27,7 +27,7 @@ Canonical project vocabulary and data rules:
 
 This file defines project-specific operating rules for AI coding agents working on **Clean Square**.
 
-The project is a one-page cleaning-company demo with one primary business flow:
+The project is a one-page cleaning-company demo. Default `SITE_MODE=portfolio` retains the UI but displays demo notices for contact and form actions, does not send leads, and rejects direct API submission. Explicit `SITE_MODE=live` enables the primary business flow:
 
 ```text
 visitor
@@ -106,7 +106,7 @@ If verification cannot be completed, state exactly what was not verified.
 
 ## 4. Primary Product Invariant
 
-The following flow must remain functional:
+The following flow must remain functional in live mode. Portfolio mode must keep the calculator and form UI, show demo notices, and never persist a lead:
 
 ```text
 Hero
@@ -120,7 +120,7 @@ Hero
 → Success State
 ```
 
-Alternative contact path:
+Alternative contact path in live mode; portfolio buttons stay on-site:
 
 ```text
 Lead Section
@@ -133,7 +133,7 @@ Do not improve secondary UI at the cost of making this path harder, slower, or l
 
 ## 5. Required Product Functionality
 
-Agents must preserve:
+Agents must preserve the UI below. Submission, persistence, success/retry states, and outbound contact links apply in live mode; portfolio mode must show clear demo notices and perform no submission or external navigation:
 
 - Hero with CTA to the calculator;
 - maintenance cleaning;
@@ -509,7 +509,7 @@ While a request is in flight:
 
 ## 18. Runtime Validation Rules
 
-Validate all `POST /api/leads` input with Zod 4.6.
+In live mode, validate all `POST /api/leads` input with Zod 4.6. Portfolio mode rejects the request before reading its body.
 
 Validate exactly:
 
@@ -668,7 +668,7 @@ Pricing logic must have automated tests for:
 
 ### E2E
 
-The main flow must be testable as:
+The live main flow must be testable as:
 
 ```text
 landing
@@ -678,7 +678,7 @@ landing
 → success
 ```
 
-Also test a failed submission path and the configured Telegram/MAX destinations.
+Also test a failed live submission path and the configured Telegram/MAX destinations. In portfolio mode, test that contact buttons stay on-site, the form sends no request, and direct API calls do not persist.
 
 ### Locator Strategy
 
@@ -905,11 +905,11 @@ Do not repeat the whole implementation plan or already-known project context.
 
 ## 33.1. Deployment Gate
 
-Preview/private deployments may exercise the complete persistence flow with synthetic data. Public production that accepts real names or phone numbers requires all of the following first:
+Default public portfolio mode must not send or persist leads. Preview/private live deployments may exercise the complete persistence flow with synthetic data. Public live production that accepts real names or phone numbers requires all of the following first:
 
 - jurisdiction-appropriate privacy/consent text;
 - operator/company details required by that text;
-- real production phone, Telegram, and MAX destinations;
+- real production destinations for enabled public contact paths (currently Telegram and MAX; public phone contact is disabled);
 - verified production storage behavior consistent with the established privacy text.
 
 Do not bypass persistence in preview merely because the public-production gate is not yet satisfied.

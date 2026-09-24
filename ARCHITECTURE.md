@@ -10,7 +10,7 @@ Canonical names and data contracts:
 - cleaning IDs: `maintenance`, `deep`, `post-renovation`;
 - optional service term: **add-on**; IDs: `windows`, `fridge`, `oven`; domain/API field: `addOns`; database column: `add_ons`;
 - calculator output: `Calculation` / calculation summary;
-- section name: `How It Works`; component: `HowItWorks.tsx`;
+- section name: `How It Works`; its static markup lives in `page.tsx`;
 - `area`: integer 10–500 inclusive;
 - prices: integer RUB;
 - `name`: trimmed 2–80 characters;
@@ -22,7 +22,7 @@ Canonical names and data contracts:
 
 ## 1. Architecture Goal
 
-The architecture exists to support one primary business flow with minimal complexity:
+The architecture supports the live business flow with minimal complexity. Default `SITE_MODE=portfolio` keeps the calculator and form UI but shows demo notices for submission and contacts; direct `POST /api/leads` requests fail closed without persistence. Only explicit `SITE_MODE=live` enables the flow below:
 
 ```text
 landing page
@@ -514,9 +514,7 @@ Because the browser does not query Supabase directly in MVP, no browser-side Sup
 ├── .env.example
 │
 ├── public/
-│   ├── images/
-│   ├── icons/
-│   └── favicon.*
+│   └── favicon.svg
 │
 ├── src/
 │   ├── app/
@@ -528,24 +526,15 @@ Because the browser does not query Supabase directly in MVP, no browser-side Sup
 │   │   └── page.tsx
 │   │
 │   ├── components/
-│   │   ├── sections/
-│   │   │   ├── Hero.tsx
-│   │   │   ├── Services.tsx
-│   │   │   ├── CalculatorSection.tsx
-│   │   │   ├── Benefits.tsx
-│   │   │   ├── HowItWorks.tsx
-│   │   │   ├── Reviews.tsx
-│   │   │   ├── LeadSection.tsx
-│   │   │   └── Footer.tsx
-│   │   │
 │   │   ├── calculator/
+│   │   │   ├── CalculationState.tsx
+│   │   │   ├── CalculationSummary.tsx
 │   │   │   ├── Calculator.tsx
-│   │   │   └── CalculationSummary.tsx
-│   │   │
-│   │   ├── lead/
-│   │   │   └── LeadForm.tsx
-│   │   │
-│   │   └── ui/
+│   │   │   ├── FinalCTA.tsx
+│   │   │   └── LeadCalculation.tsx
+│   │   └── lead/
+│   │       ├── ContactActions.tsx
+│   │       └── LeadForm.tsx
 │   │
 │   ├── config/
 │   │   ├── pricing.ts
@@ -560,16 +549,16 @@ Because the browser does not query Supabase directly in MVP, no browser-side Sup
 │   │   └── supabase.ts
 │   │
 │   └── validation/
-│       └── lead.ts
+│       ├── lead.ts
+│       └── leadFields.ts
 │
+├── supabase/migrations/20260924000000_create_leads.sql
 └── tests/
-    ├── unit/
-    │   └── pricing.test.ts
-    └── e2e/
-        └── lead-flow.spec.ts
+    ├── unit/                 # pricing, validation, API, persistence, contacts
+    └── e2e/                  # calculator, form, API, contacts, private integration
 ```
 
-If the generated Next.js scaffold uses a slightly different configuration filename, keep the framework-generated convention rather than creating duplicate config files.
+Static sections remain in the server-rendered `page.tsx`; only calculator, form, contact notices, and the final CTA use client components.
 
 ---
 
@@ -634,11 +623,13 @@ This contains:
 - up to four benefits;
 - exactly three fictional reviews (`name`, `text`, `rating`);
 - the four canonical How It Works steps from `TZ.md`;
-- public phone number;
+- optional public phone number (currently disabled);
 - Telegram URL;
 - MAX URL.
 
 Public contact values originate from `NEXT_PUBLIC_PHONE`, `NEXT_PUBLIC_TELEGRAM_URL`, and `NEXT_PUBLIC_MAX_URL`; `site.ts` is the only module that reads them and exposes typed configuration to components. A CMS is not required.
+An empty `NEXT_PUBLIC_PHONE` disables the public phone contact without changing the required phone field in the lead form.
+`site.ts` also reads `SITE_MODE`. Portfolio mode is the default; contact values are not rendered or linked in that mode.
 
 ---
 
@@ -698,7 +689,7 @@ After `success`:
 Required controls:
 
 - server-only secret for Supabase elevated access;
-- server-side validation for every lead request;
+- server-side validation for every live lead request; portfolio requests are rejected before body processing;
 - server-side price recalculation;
 - explicit allow-list for cleaning types and add-on IDs;
 - canonical name/phone validation limits;
@@ -750,7 +741,7 @@ open landing page
 → observe success state
 ```
 
-Also test:
+In live mode, also test:
 
 - client validation;
 - server/submission error state;
@@ -767,12 +758,14 @@ Use accessible role/label locators where practical rather than brittle CSS imple
 SUPABASE_URL=
 SUPABASE_SECRET_KEY=
 
+SITE_MODE=portfolio
 NEXT_PUBLIC_PHONE=
 NEXT_PUBLIC_TELEGRAM_URL=
 NEXT_PUBLIC_MAX_URL=
 ```
 
 Only public contact information may use `NEXT_PUBLIC_`. `src/config/site.ts` is the single application-level reader for these public contact variables; components consume its exports.
+`SITE_MODE` is server-side configuration. Portfolio mode remains the default when it is absent or has any value other than `live`.
 
 `.env.example` must contain variable names and safe placeholders only. Placeholder contacts must fail the production-readiness check rather than be presented as real destinations.
 
@@ -810,9 +803,10 @@ Support for older browser generations is outside MVP and requires a tooling/scop
 
 ## 24. Deployment and Personal-Data Gate
 
-The technical architecture supports real lead persistence, but the project currently contains placeholder legal/privacy copy. Therefore:
+The technical architecture supports real lead persistence in live mode, but the project currently contains placeholder legal/privacy copy. Therefore:
 
-- preview/private environments may exercise the full flow with synthetic test data;
-- public production must not accept real personal data until jurisdiction-appropriate privacy/consent text and operator details are supplied;
-- real production phone/Telegram/MAX destinations are also required before public launch;
+- public portfolio mode must not send or persist leads, and its contact controls must remain on-site;
+- preview/private live environments may exercise the full flow with synthetic test data;
+- public live production must not accept real personal data until jurisdiction-appropriate privacy/consent text and operator details are supplied;
+- real production destinations are required for enabled public contact paths before public live launch (currently Telegram and MAX; public phone contact is disabled);
 - this gate is a release condition, not a reason to bypass server validation or persistence in test/preview environments.

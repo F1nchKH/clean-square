@@ -4,9 +4,9 @@ import { useRef, useState, type FormEvent } from "react";
 import { useCalculation } from "@/components/calculator/CalculationState";
 import { validateLeadFields, type LeadFieldErrors } from "@/validation/leadFields";
 
-type FormStatus = "idle" | "submitting" | "success" | "error";
+type FormStatus = "idle" | "submitting" | "success" | "error" | "demo";
 
-export function LeadForm() {
+export function LeadForm({ demoMode }: { demoMode: boolean }) {
   const { calculation, areaError } = useCalculation();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -18,6 +18,10 @@ export function LeadForm() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (demoMode) {
+      setStatus("demo");
+      return;
+    }
     if (submitting.current || status === "success") return;
 
     const result = validateLeadFields({ name, phone, consent });
@@ -72,7 +76,7 @@ export function LeadForm() {
         <input
           id="lead-name"
           name="name"
-          autoComplete="name"
+          autoComplete={demoMode ? "off" : "name"}
           value={name}
           onChange={(event) => {
             setName(event.target.value);
@@ -89,7 +93,7 @@ export function LeadForm() {
           id="lead-phone"
           name="phone"
           type="tel"
-          autoComplete="tel"
+          autoComplete={demoMode ? "off" : "tel"}
           inputMode="tel"
           value={phone}
           onChange={(event) => {
@@ -114,7 +118,11 @@ export function LeadForm() {
             aria-invalid={Boolean(errors.consent)}
             aria-describedby={errors.consent ? "lead-consent-error" : undefined}
           />
-          <span>Согласен на обработку персональных данных</span>
+          <span>
+            {demoMode
+              ? "Демо-согласие: данные не отправляются"
+              : "Согласен на обработку персональных данных"}
+          </span>
         </label>
         {errors.consent && <p id="lead-consent-error" className="field-error">{errors.consent}</p>}
       </div>
@@ -128,10 +136,19 @@ export function LeadForm() {
           Не удалось отправить заявку. Проверьте соединение и попробуйте ещё раз.
         </p>
       )}
+      {status === "demo" && (
+        <p className="lead-demo-note" role="status">
+          Демо: заявка не отправлена. Данные не сохраняются.
+        </p>
+      )}
       <button className="button button-primary lead-submit" type="submit" disabled={status === "submitting"}>
         {status === "submitting" ? "Отправляем…" : "Отправить заявку"}
       </button>
-      <p className="lead-privacy-note">Демонстрационная форма. Текст согласия требует уточнения перед публичным запуском.</p>
+      <p className="lead-privacy-note">
+        {demoMode
+          ? "Данные не отправляются и не сохраняются. Не вводите реальные персональные данные."
+          : "Демонстрационная форма. Текст согласия требует уточнения перед публичным запуском."}
+      </p>
     </form>
   );
 }

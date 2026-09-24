@@ -3,6 +3,7 @@
 ## 0. Execution Contract
 
 This plan is executable without inventing product constants. `TZ.md` remains the product source of truth and `ARCHITECTURE.md` remains the architecture source of truth. If those documents conflict, implementation pauses until the documents are reconciled or the user explicitly waives the conflict.
+Stages 5–7 describe the preserved live lead path. Stage 8 adds the default non-submitting portfolio mode and gates that live path behind explicit `SITE_MODE=live`.
 
 Canonical implementation data:
 
@@ -398,27 +399,28 @@ Stage 6.
 
 ---
 
-## Stage 8. Telegram and MAX Contact Paths
+## Stage 8. Portfolio Contact Controls and Live Contact Paths
 
 **Priority:** P0  
 **Complexity:** S
 
 ### Work
 
-- Store `NEXT_PUBLIC_PHONE`, `NEXT_PUBLIC_TELEGRAM_URL`, and `NEXT_PUBLIC_MAX_URL` in environment values and expose them only through `src/config/site.ts`.
-- Add Telegram and MAX links to the lead section.
-- Add the same public contacts to the footer where appropriate.
-- Configure correct `target` / `rel` behavior if links open a new tab.
-- Test the actual configured destinations once real demo handles are supplied.
+- Default to `SITE_MODE=portfolio`: keep Telegram/MAX buttons in the lead section and footer, show an in-page demo notice, and do not use external links.
+- In portfolio mode, the lead form shows a demo notice without sending data and direct API submission fails closed.
+- Preserve the live submission path behind explicit `SITE_MODE=live`.
+- Store optional `NEXT_PUBLIC_PHONE` (currently disabled), `NEXT_PUBLIC_TELEGRAM_URL`, and `NEXT_PUBLIC_MAX_URL` through `src/config/site.ts` for live mode only.
+- In live mode, add Telegram/MAX links to the lead section and footer with correct `target` / `rel` behavior; test supplied destinations.
 
 ### Result
 
-Users have alternative direct-contact paths after or instead of form submission.
+Portfolio visitors can inspect the controls without sending data or leaving the site. Private live demos retain direct-contact and lead-submission paths.
 
 ### Done When
 
-- [ ] Telegram opens the configured destination.
-- [ ] MAX opens the configured destination.
+- [ ] Portfolio Telegram/MAX buttons stay on the site and show a demo notice.
+- [ ] Portfolio lead form makes no request; direct API submissions do not persist.
+- [ ] In live mode, Telegram and MAX controls open new tabs at their configured URLs with safe `rel` values; provider accessibility is checked before public live launch.
 - [ ] Contact URLs are not duplicated as literals across components.
 - [ ] Placeholder links are not shipped as production-ready links.
 
@@ -497,8 +499,8 @@ Also verify:
 - client validation;
 - rejected/failed submission state;
 - calculation persistence into the form;
-- Telegram destination;
-- MAX destination.
+- portfolio demo contact and submission behavior;
+- live-mode Telegram and MAX destinations.
 
 Prefer role- and label-based locators over brittle implementation selectors.
 
@@ -513,7 +515,7 @@ The main business flow is reproducibly testable.
 - [ ] Lead submission is verified.
 - [ ] Success state is verified.
 - [ ] Error state is verified.
-- [ ] Telegram and MAX targets are verified against the configured non-placeholder destinations.
+- [ ] Portfolio controls stay on-site; live-mode Telegram and MAX targets are verified against configured non-placeholder destinations.
 - [ ] Tests do not depend on arbitrary sleep delays.
 
 ### Dependencies
@@ -538,8 +540,8 @@ Run a complete manual and automated verification:
 5. Submit a valid lead.
 6. Confirm the database record.
 7. Verify the stored price against server-side calculation.
-8. Verify Telegram.
-9. Verify MAX.
+8. Verify portfolio Telegram control and the live destination when live mode is enabled.
+9. Verify portfolio MAX control and the live destination when live mode is enabled.
 10. Check mobile layout.
 11. Check desktop layout.
 12. Run typecheck.
@@ -577,10 +579,9 @@ All previous P0 implementation stages.
 - Connect repository to Vercel.
 - Configure preview/production environment variables.
 - Deploy the Next.js application.
-- Run smoke tests against the deployed URL using synthetic lead data.
-- Verify the deployed Supabase connection.
-- Verify configured contact links.
-- Enforce the personal-data release gate from `TZ.md`: public production that accepts real names/phone numbers is not enabled until jurisdiction-appropriate privacy/consent text, operator details, and real contacts are supplied.
+- Run portfolio smoke tests against the deployed URL without sending lead data.
+- In a private live preview with synthetic data, verify the deployed Supabase connection and configured contact links.
+- Deploy the non-submitting portfolio mode by default. Enforce the `TZ.md` personal-data gate before any public live deployment that accepts real names/phone numbers.
 
 ### Result
 
@@ -590,9 +591,9 @@ A working deployed portfolio environment; public real-data production is enabled
 
 - [ ] Deployed URL opens successfully.
 - [ ] Calculator works in deployment.
-- [ ] A synthetic test lead is persisted in the deployed database.
+- [ ] Portfolio deployment rejects lead submission; a private live preview persists a synthetic test lead.
 - [ ] No server secret is exposed to the browser.
-- [ ] Telegram and MAX links are real non-placeholder destinations before public launch.
+- [ ] Telegram and MAX links are real non-placeholder destinations before public live launch; portfolio controls do not navigate externally.
 - [ ] No environment/configuration error appears.
 - [ ] Public production accepting real personal data remains blocked while the privacy/consent gate is unsatisfied.
 

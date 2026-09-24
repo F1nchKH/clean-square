@@ -59,6 +59,17 @@ test("invalid area hides a valid calculation and blocks the lead CTA", async ({ 
   await expect(calculator.getByTestId("estimated-price")).toHaveText("22 500 ₽");
 });
 
+test("final CTA follows the current calculation state", async ({ page }) => {
+  await page.goto("/");
+  const finalCta = page.getByRole("region", { name: "Узнайте стоимость вашей уборки" }).getByRole("link");
+
+  await expect(finalCta).toHaveAttribute("href", "#lead");
+  await page.getByRole("spinbutton", { name: "Площадь, м²" }).fill("9");
+  await expect(finalCta).toHaveAttribute("href", "#calculator");
+  await page.getByRole("spinbutton", { name: "Площадь, м²" }).fill("80");
+  await expect(finalCta).toHaveAttribute("href", "#lead");
+});
+
 for (const width of [320, 390, 1280]) {
   test(`calculator remains usable without horizontal overflow at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 800 });

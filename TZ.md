@@ -41,7 +41,7 @@ The primary business flow is:
 visitor → preliminary price calculation → lead submission
 ```
 
-The website must let a visitor estimate the cleaning price without calling a manager, then submit a lead or contact the company directly through Telegram or MAX.
+The website lets a visitor estimate the cleaning price. Default portfolio mode demonstrates the lead and contact controls without sending data or leaving the site. Explicit `SITE_MODE=live` enables lead submission and direct Telegram/MAX links in private previews with synthetic data; public live launch remains subject to the deployment gate.
 
 A secondary goal is to serve as a portfolio project that demonstrates a complete business scenario rather than only a visually polished frontend.
 
@@ -250,9 +250,9 @@ The lead section must also contain:
 - Telegram;
 - MAX.
 
-Both links must open the configured company profile, chat, or other appropriate direct-contact destination.
+In live mode, both links must open the configured company profile, chat, or other appropriate direct-contact destination. In portfolio mode, Telegram and MAX buttons stay on the page and show a clear demo notice.
 
-Telegram and MAX destinations are configuration values. No real company handles were provided in the source brief, so production links must be supplied before launch.
+Telegram and MAX destinations are configuration values used only in live mode. Public phone contact is intentionally disabled. Portfolio mode keeps the form fields for demonstration but neither validates nor submits them; live mode requires the phone field for a callback.
 
 ---
 
@@ -314,9 +314,8 @@ This CTA may be visually integrated with the lead section, but the conversion ac
 The footer contains:
 
 - company name;
-- phone number;
-- Telegram;
-- MAX;
+- public phone number only when that contact path is enabled in live mode;
+- Telegram and MAX controls (in-page demo notices in portfolio mode; links in live mode);
 - basic service information.
 
 ---
@@ -446,23 +445,24 @@ The source brief intentionally left several implementation decisions open. This 
 - area validation: integer 10–500 m²;
 - money: integer RUB, without kopeks;
 - lead validation: exact name/phone rules are defined in Section 0;
-- public contacts: `NEXT_PUBLIC_PHONE`, `NEXT_PUBLIC_TELEGRAM_URL`, and `NEXT_PUBLIC_MAX_URL`, read centrally through `src/config/site.ts`;
+- site mode: `SITE_MODE=portfolio` by default; only explicit `SITE_MODE=live` enables server submission and external contact links;
+- live-mode public contacts: `NEXT_PUBLIC_PHONE` (optional; currently disabled), `NEXT_PUBLIC_TELEGRAM_URL`, and `NEXT_PUBLIC_MAX_URL`, read centrally through `src/config/site.ts`;
 - company identity and reviews: fictional demo content;
 - legal/privacy copy: placeholder until a real deployment jurisdiction and operator are known;
-- public production that accepts real personal data is blocked until jurisdiction-appropriate privacy/consent text and operator details are supplied. Preview/private portfolio testing may use synthetic lead data.
+- public live production that accepts real personal data is blocked until jurisdiction-appropriate privacy/consent text and operator details are supplied. Preview/private live testing may use synthetic lead data; public portfolio mode sends no leads.
 
 ---
 
 ## 21.1. Deployment Gate
 
-Before any public production deployment that can accept real names or phone numbers:
+Default portfolio mode makes no client lead request, rejects direct API submissions, and does not expose external contact links. Before any public live deployment that can accept real names or phone numbers:
 
 - replace placeholder privacy/consent copy with jurisdiction-appropriate text;
 - provide the real operator/company identity required by that text;
-- provide real production phone, Telegram, and MAX destinations;
+- provide real production destinations for enabled public contact paths (currently Telegram and MAX; public phone contact is disabled);
 - verify that production storage and retention behavior matches the established privacy text.
 
-Until these prerequisites exist, only preview/private deployment and synthetic test leads are considered valid for portfolio verification. This gate does not change the technical requirement that the full lead persistence path must work in the test/preview environment.
+Until these prerequisites exist, public portfolio mode and preview/private live deployment with synthetic test leads are valid. Public live collection of real personal data remains blocked. The full lead persistence path must still work in private live testing.
 
 ---
 
@@ -480,20 +480,20 @@ Until these prerequisites exist, only preview/private deployment and synthetic t
 - [ ] Client calculation uses the shared pricing configuration.
 - [ ] The result is explicitly labeled as estimated/preliminary.
 - [ ] Calculation data is preserved when moving to the lead form.
-- [ ] Name and phone follow the canonical validation rules from Section 0.
-- [ ] The form cannot be submitted without consent.
-- [ ] Lead submission goes through the server endpoint.
-- [ ] The server recalculates the authoritative estimated price.
-- [ ] A valid lead is persisted in PostgreSQL.
-- [ ] Successful submission displays a confirmation state.
-- [ ] Failed submission displays a useful error state and permits retry.
-- [ ] Telegram link opens the configured destination.
+- [ ] In live mode, name and phone follow the canonical validation rules from Section 0.
+- [ ] In live mode, the form cannot be submitted without consent.
+- [ ] In live mode, lead submission goes through the server endpoint; in portfolio mode, the form shows a demo notice without a request.
+- [ ] In live mode, the server recalculates the authoritative estimated price.
+- [ ] In live mode, a valid lead is persisted in PostgreSQL.
+- [ ] In live mode, successful submission displays a confirmation state.
+- [ ] In live mode, failed submission displays a useful error state and permits retry.
+- [ ] In live mode, the Telegram link opens the configured destination; in portfolio mode, its button shows a demo notice.
 - [ ] Exactly three fictional reviews are rendered.
 - [ ] No more than four benefits are rendered.
 - [ ] How It Works contains the four required conceptual steps.
 - [ ] Page title, meta description, semantic HTML, heading hierarchy, and favicon are present.
-- [ ] MAX link opens the configured destination.
-- [ ] The complete primary flow has no dead ends.
+- [ ] In live mode, the MAX link opens the configured destination; in portfolio mode, its button shows a demo notice.
+- [ ] The complete live flow has no dead ends; portfolio actions explain their demo behavior.
 
 ### UI and Accessibility
 

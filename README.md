@@ -1,10 +1,10 @@
 # Clean Square
 
-Development workspace for the Clean Square demo. Product work starts in Stage 1 of [PLAN.md](PLAN.md).
+One-page Clean Square demo. [TZ.md](TZ.md) defines the product and deployment gate; [PLAN.md](PLAN.md) tracks the implementation stages.
 
 Use Node.js 24 and npm. Run `npm ci` to install the locked dependencies, then `npm run dev` to start the application. Copy `.env.example` to `.env.local` when environment values are available.
 
-Stage 0 checks: `npm run typecheck`, `npm run lint`, `npm run build`, `npm test`, and `npx playwright --version`. Business tests are added in later stages.
+Run `npm run typecheck`, `npm run lint`, `npm test`, `npm run test:e2e`, and `npm run build` before release. The default E2E run checks portfolio mode. For private live checks, set `SITE_MODE=live` before `npm run test:e2e`. Set `RUN_LIVE_INTEGRATION=1` as well to run the browser-to-Supabase test with synthetic data; it verifies and removes its own test row.
 
 ## Stage 7: Supabase persistence
 
@@ -17,4 +17,19 @@ SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SECRET_KEY=sb_secret_your-project-key
 ```
 
-Use the project's current secret API key, never a publishable or legacy service-role key. Do not put the secret under a `NEXT_PUBLIC_` name. A missing or invalid key causes lead submission to fail closed with the public `SUBMISSION_ERROR` response. The browser posts to `/api/leads`; only the server inserts into Supabase. Use synthetic data for preview testing. Public collection of real contact data remains subject to the release gate in `TZ.md`.
+Use the project's current secret API key, never a publishable or legacy service-role key. Do not put the secret under a `NEXT_PUBLIC_` name. In private live mode, a missing or invalid key causes lead submission to fail closed with the public `SUBMISSION_ERROR` response. The browser posts to `/api/leads` only in live mode; only the server inserts into Supabase. Use synthetic data for private live testing. Public collection of real contact data remains subject to the release gate in `TZ.md`.
+
+## Stage 8: portfolio controls and private live mode
+
+Portfolio mode is the default. Telegram and MAX buttons show an in-page demo notice; the form sends no data, and direct API submissions are rejected. The fields are illustrative: do not enter real personal data. To exercise the working flow privately with synthetic data, set `SITE_MODE=live`.
+
+Set live-mode public contacts in `.env.local` or the deployment environment:
+
+```env
+NEXT_PUBLIC_PHONE=
+NEXT_PUBLIC_TELEGRAM_URL=
+NEXT_PUBLIC_MAX_URL=
+SITE_MODE=portfolio
+```
+
+Public phone contact is intentionally disabled: leave `NEXT_PUBLIC_PHONE` empty. In live mode, the lead form still requires a phone number. Telegram and MAX values must be complete HTTPS links to supplied direct-contact destinations. `src/config/site.ts` is the only application module that reads these values. Missing, malformed, or obvious placeholder links are omitted. Set mode and contacts before building or redeploying the static page. Public live collection of real personal data remains blocked by the release gate in `TZ.md`.

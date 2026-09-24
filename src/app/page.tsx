@@ -2,11 +2,14 @@ import { cleaningServices } from "@/config/pricing";
 import { CalculationProvider } from "@/components/calculator/CalculationState";
 import { Calculator } from "@/components/calculator/Calculator";
 import { LeadCalculation } from "@/components/calculator/LeadCalculation";
+import { FinalCTA } from "@/components/calculator/FinalCTA";
+import { ContactActions } from "@/components/lead/ContactActions";
 import {
   benefits,
   howItWorksSteps,
   reviews,
   siteContacts,
+  siteMode,
 } from "@/config/site";
 
 const serviceOrder = ["maintenance", "deep", "post-renovation"] as const;
@@ -193,19 +196,35 @@ export default function Home() {
               <p className="eyebrow">Заявка</p>
               <h2 id="lead-title">Остался один шаг до чистоты</h2>
               <p>
-                Оставьте имя и телефон. Мы свяжемся с вами, чтобы уточнить
-                детали и удобное время уборки.
+                {siteMode === "portfolio"
+                  ? "Посмотрите, как устроена заявка. В демо-версии данные не отправляются."
+                  : "Оставьте имя и телефон. Мы свяжемся с вами, чтобы уточнить детали и удобное время уборки."}
               </p>
-              <p className="contact-note">
-                Связь через Telegram и MAX появится после настройки контактов
-                компании.
-              </p>
+              {siteMode === "portfolio" ? (
+                <ContactActions variant="lead" />
+              ) : siteContacts.telegramUrl || siteContacts.maxUrl ? (
+                <nav className="contact-links" aria-label="Другие способы связи">
+                  {siteContacts.telegramUrl && (
+                    <a href={siteContacts.telegramUrl} target="_blank" rel="noopener noreferrer">
+                      Telegram <span aria-hidden="true">↗</span>
+                    </a>
+                  )}
+                  {siteContacts.maxUrl && (
+                    <a href={siteContacts.maxUrl} target="_blank" rel="noopener noreferrer">
+                      MAX <span aria-hidden="true">↗</span>
+                    </a>
+                  )}
+                </nav>
+              ) : (
+                <p className="contact-note">
+                  Связь через Telegram и MAX появится после настройки контактов
+                  компании.
+                </p>
+              )}
             </div>
-            <LeadCalculation />
+            <LeadCalculation demoMode={siteMode === "portfolio"} />
           </div>
         </section>
-
-        </CalculationProvider>
 
         <section className="final-cta" aria-labelledby="final-cta-title">
           <div className="container final-cta-inner">
@@ -213,11 +232,10 @@ export default function Home() {
               <p className="eyebrow">Начнём?</p>
               <h2 id="final-cta-title">Узнайте стоимость вашей уборки</h2>
             </div>
-            <a className="button button-light" href="#calculator">
-              Вернуться к расчёту <span aria-hidden="true">↗</span>
-            </a>
+            <FinalCTA />
           </div>
         </section>
+        </CalculationProvider>
       </main>
 
       <footer className="site-footer">
@@ -226,10 +244,23 @@ export default function Home() {
             <strong>Clean Square</strong>
             <p>Уборка квартир и домов</p>
           </div>
-          <div className="footer-contacts">
-            {siteContacts.phone && <span>{siteContacts.phone}</span>}
-            <span>Telegram · MAX — контакты будут добавлены</span>
-          </div>
+          {siteMode === "portfolio" ? (
+            <ContactActions variant="footer" />
+          ) : (
+            <div className="footer-contacts">
+              {siteContacts.phone && (
+                <a href={`tel:${siteContacts.phone.replace(/[^\d+]/g, "")}`}>
+                  {siteContacts.phone}
+                </a>
+              )}
+              {siteContacts.telegramUrl && (
+                <a href={siteContacts.telegramUrl} target="_blank" rel="noopener noreferrer">Telegram</a>
+              )}
+              {siteContacts.maxUrl && (
+                <a href={siteContacts.maxUrl} target="_blank" rel="noopener noreferrer">MAX</a>
+              )}
+            </div>
+          )}
           <span>© {new Date().getFullYear()} Clean Square</span>
         </div>
       </footer>

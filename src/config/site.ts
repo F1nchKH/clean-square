@@ -1,12 +1,39 @@
-function publicContact(value: string | undefined): string | null {
-  return value?.trim() || null;
+function publicPhone(value: string | undefined): string | null {
+  const phone = value?.trim();
+  const digits = phone?.replace(/\D/g, "") ?? "";
+  return phone && /^[+\d\s()-]+$/.test(phone) && digits.length >= 7 && digits.length <= 15
+    ? phone
+    : null;
+}
+
+function publicContactUrl(value: string | undefined): string | null {
+  const url = value?.trim();
+  if (!url) return null;
+
+  try {
+    const parsed = new URL(url);
+    if (
+      parsed.protocol !== "https:" ||
+      parsed.username ||
+      parsed.password ||
+      /(^|\.)example\.(com|org|net)$/.test(parsed.hostname) ||
+      /(^|[\/._-])(placeholder|your-company)([\/._-]|$)/i.test(parsed.pathname)
+    ) {
+      return null;
+    }
+    return url;
+  } catch {
+    return null;
+  }
 }
 
 export const siteContacts = {
-  phone: publicContact(process.env.NEXT_PUBLIC_PHONE),
-  telegramUrl: publicContact(process.env.NEXT_PUBLIC_TELEGRAM_URL),
-  maxUrl: publicContact(process.env.NEXT_PUBLIC_MAX_URL),
+  phone: publicPhone(process.env.NEXT_PUBLIC_PHONE),
+  telegramUrl: publicContactUrl(process.env.NEXT_PUBLIC_TELEGRAM_URL),
+  maxUrl: publicContactUrl(process.env.NEXT_PUBLIC_MAX_URL),
 };
+
+export const siteMode = process.env.SITE_MODE === "live" ? "live" : "portfolio";
 
 export const benefits = [
   "Ориентировочная стоимость видна до звонка.",

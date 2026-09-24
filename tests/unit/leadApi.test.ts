@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { POST, createLeadPostHandler } from "../../src/app/api/leads/route";
+import { createLeadPostHandler } from "../../src/app/api/leads/route";
+import { submitLead } from "../../src/server/leads";
 
 const validPayload = {
   name: "  Анна Иванова  ",
@@ -102,11 +103,20 @@ describe("POST /api/leads", () => {
     vi.stubEnv("SUPABASE_URL", "");
     vi.stubEnv("SUPABASE_SECRET_KEY", "");
     try {
-      const response = await POST(request(validPayload));
+      const response = await createLeadPostHandler(submitLead)(request(validPayload));
       expect(response.status).toBe(500);
       expect(await response.json()).toEqual({ success: false, code: "SUBMISSION_ERROR" });
     } finally {
       vi.unstubAllEnvs();
     }
+  });
+
+  it("does not call persistence in portfolio mode", async () => {
+    let called = false;
+    const handler = createLeadPostHandler(async () => { called = true; }, true);
+    const response = await handler(request(validPayload));
+    expect(response.status).toBe(500);
+    expect(await response.json()).toEqual({ success: false, code: "SUBMISSION_ERROR" });
+    expect(called).toBe(false);
   });
 });

@@ -1,6 +1,9 @@
 import { createServer, type Server } from "node:http";
 import { afterEach, describe, expect, it } from "vitest";
-import { POST } from "../../src/app/api/leads/route";
+import { createLeadPostHandler } from "../../src/app/api/leads/route";
+import { submitLead } from "../../src/server/leads";
+
+const livePost = createLeadPostHandler(submitLead);
 
 const originalUrl = process.env.SUPABASE_URL;
 const originalKey = process.env.SUPABASE_SECRET_KEY;
@@ -56,7 +59,7 @@ async function fakeSupabase(statuses: number[]) {
 describe("Supabase lead persistence", () => {
   it("inserts one normalized row with the server price", async () => {
     const writes = await fakeSupabase([201]);
-    const response = await POST(leadRequest());
+    const response = await livePost(leadRequest());
 
     expect(response.status).toBe(201);
     expect(await response.json()).toEqual({ success: true });
@@ -77,13 +80,13 @@ describe("Supabase lead persistence", () => {
 
   it("normalizes a database failure and allows retry", async () => {
     const writes = await fakeSupabase([500, 201]);
-    const failed = await POST(leadRequest());
+    const failed = await livePost(leadRequest());
     const failedBody = await failed.text();
     expect(failed.status).toBe(500);
     expect(JSON.parse(failedBody)).toEqual({ success: false, code: "SUBMISSION_ERROR" });
     expect(failedBody).not.toContain("private database detail");
 
-    const retried = await POST(leadRequest());
+    const retried = await livePost(leadRequest());
     expect(retried.status).toBe(201);
     expect(writes).toHaveLength(2);
   });
@@ -92,7 +95,7 @@ describe("Supabase lead persistence", () => {
     const writes = await fakeSupabase([201]);
     process.env.SUPABASE_SECRET_KEY = "sb_publishable_test_only";
 
-    const response = await POST(leadRequest());
+    const response = await livePost(leadRequest());
     expect(response.status).toBe(500);
     expect(await response.json()).toEqual({ success: false, code: "SUBMISSION_ERROR" });
     expect(writes).toHaveLength(0);

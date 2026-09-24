@@ -2,6 +2,7 @@ import { calculatePrice } from "../../../domain/pricing";
 import type { LeadDraft } from "../../../domain/types";
 import { submitLead } from "../../../server/leads";
 import { leadSchema } from "../../../validation/lead";
+import { siteMode } from "../../../config/site";
 
 type LeadApiResponse =
   | { success: true }
@@ -11,8 +12,11 @@ function apiResponse(body: LeadApiResponse, status: 201 | 400 | 500): Response {
   return Response.json(body, { status });
 }
 
-export function createLeadPostHandler(saveLead: (lead: LeadDraft) => Promise<void>) {
+export function createLeadPostHandler(saveLead: (lead: LeadDraft) => Promise<void>, portfolioDemo = false) {
   return async (request: Request): Promise<Response> => {
+    if (portfolioDemo) {
+      return apiResponse({ success: false, code: "SUBMISSION_ERROR" }, 500);
+    }
     let input: unknown;
     try {
       input = await request.json();
@@ -35,4 +39,4 @@ export function createLeadPostHandler(saveLead: (lead: LeadDraft) => Promise<voi
   };
 }
 
-export const POST = createLeadPostHandler(submitLead);
+export const POST = createLeadPostHandler(submitLead, siteMode === "portfolio");

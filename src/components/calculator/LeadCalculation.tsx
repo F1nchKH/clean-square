@@ -4,7 +4,7 @@ import { CalculationSummary } from "./CalculationSummary";
 import { useCalculation } from "./CalculationState";
 import { LeadForm } from "@/components/lead/LeadForm";
 
-export function LeadCalculation() {
+export function LeadCalculation({ demoMode }: { demoMode: boolean }) {
   const { calculation } = useCalculation();
 
   return (
@@ -16,7 +16,7 @@ export function LeadCalculation() {
       ) : (
         <p>Укажите допустимую площадь в калькуляторе, чтобы перейти к заявке.</p>
       )}
-      <LeadForm />
+      <LeadForm demoMode={demoMode} />
     </div>
   );
 }
