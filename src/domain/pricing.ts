@@ -2,7 +2,11 @@ import { addOnServices, cleaningServices } from "../config/pricing";
 import { areaConstraints, type Calculation, type CalculationInput } from "./types";
 
 export function calculatePrice(input: CalculationInput): Calculation {
-  if (!input || !Object.hasOwn(cleaningServices, input.cleaningType)) {
+  if (
+    !input ||
+    typeof input.cleaningType !== "string" ||
+    !Object.hasOwn(cleaningServices, input.cleaningType)
+  ) {
     throw new RangeError("Invalid cleaning type");
   }
 
@@ -17,7 +21,9 @@ export function calculatePrice(input: CalculationInput): Calculation {
 
   if (
     !Array.isArray(input.addOns) ||
-    input.addOns.some((id) => !Object.hasOwn(addOnServices, id)) ||
+    input.addOns.some(
+      (id) => typeof id !== "string" || !Object.hasOwn(addOnServices, id),
+    ) ||
     new Set(input.addOns).size !== input.addOns.length
   ) {
     throw new RangeError("Invalid add-ons");
