@@ -56,3 +56,5 @@ export type Lead = {
   consent: boolean;
   createdAt: string;
 };
+
+export type LeadDraft = Omit<Lead, "id" | "createdAt">;
