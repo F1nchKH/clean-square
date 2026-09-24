@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { POST, createLeadPostHandler } from "../../src/app/api/leads/route";
 
 const validPayload = {
@@ -98,10 +98,15 @@ describe("POST /api/leads", () => {
     expect(body).not.toContain("secret database detail");
   });
 
-  it("fails closed until Stage 7 persistence is connected", async () => {
-    const response = await POST(request(validPayload));
-
-    expect(response.status).toBe(500);
-    expect(await response.json()).toEqual({ success: false, code: "SUBMISSION_ERROR" });
+  it("fails closed when Supabase is not configured", async () => {
+    vi.stubEnv("SUPABASE_URL", "");
+    vi.stubEnv("SUPABASE_SECRET_KEY", "");
+    try {
+      const response = await POST(request(validPayload));
+      expect(response.status).toBe(500);
+      expect(await response.json()).toEqual({ success: false, code: "SUBMISSION_ERROR" });
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 });

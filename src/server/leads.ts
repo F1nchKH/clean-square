@@ -1,6 +1,17 @@
 import type { LeadDraft } from "../domain/types";
+import { createServerSupabaseClient } from "./supabase";
 
-export const submitLead: (lead: LeadDraft) => Promise<void> = async () => {
-  // Stage 7 connects persistence. Until then, never confirm an unstored lead.
-  throw new Error("Lead persistence is not configured");
+export async function submitLead(lead: LeadDraft): Promise<void> {
+  const supabase = createServerSupabaseClient();
+  const { error } = await supabase.from("leads").insert({
+    name: lead.name,
+    phone: lead.phone,
+    cleaning_type: lead.cleaningType,
+    area: lead.area,
+    add_ons: lead.addOns,
+    calculated_price: lead.calculatedPrice,
+    consent: lead.consent,
+  });
+
+  if (error) throw new Error("Lead insert failed");
 }

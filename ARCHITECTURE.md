@@ -469,6 +469,8 @@ Application validation remains mandatory even when database constraints exist. `
 
 The database is not a CMS or order-management system. MVP application behavior is insert-only.
 
+The Stage 7 migration is `supabase/migrations/20260924000000_create_leads.sql`. It enables Row Level Security without browser policies, revokes table access from `anon` and `authenticated`, and explicitly grants `service_role` insert access for projects with automatic table exposure disabled. Inserts use only the server-side secret key after validation and price recalculation.
+
 ---
 
 ## 12. Supabase Key Strategy
