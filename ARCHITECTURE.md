@@ -48,4 +48,4 @@ The SQL migration defines a `leads` table with the submitted fields, integer cal
 
 Node.js 24, Next.js 16.3.6, React packages compatible with that version, TypeScript strict mode, Tailwind CSS 4, Zod 4, Supabase PostgreSQL, Vitest 5, Playwright 1.63, and Vercel form the current stack. The lockfile fixes installed versions. `npm run typecheck`, `npm run lint`, `npm test`, `npm run test:e2e`, and `npm run build` are the verification commands. GitHub Actions runs the non-secret checks on pushes and pull requests; private Supabase integration is opt-in.
 
-The site uses native form controls, visible focus, responsive layouts down to 320 px, and reduced-motion handling. Its single interior image is an illustrative generated asset, not a photograph of the fictional company's work.
+The site uses native form controls, visible focus, responsive layouts down to 320 px, and reduced-motion handling. Its single interior image is illustrative, not a photograph of the fictional company's work.

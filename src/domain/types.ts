@@ -22,6 +22,7 @@ export type CleaningService = {
   id: CleaningTypeId;
   title: string;
   description: string;
+  detail: string;
   pricePerM2: number;
   minPrice: number;
 };

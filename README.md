@@ -22,6 +22,8 @@ A one-page cleaning-service website built around one useful question: **what mig
 - Server-side validation and price recalculation before a lead is written to Supabase PostgreSQL.
 - Responsive layout, keyboard-accessible controls, and a clear distinction between an estimate and the final agreed price.
 
+The page puts the calculator directly after the introduction, shows starting tariffs alongside concrete service descriptions, and explains the handoff from estimate to confirmed price. The visual direction is warm and restrained; the single interior image is illustrative rather than a claim about completed work. Example reviews are visibly disclosed and carry no invented aggregate rating.
+
 The company, testimonials, and prices are fictional. The public site runs in **`portfolio` mode**: form and contact controls demonstrate their states without sending data or navigating to external contacts, and direct API submissions are rejected. An explicit **`live` mode** enables the full persistence path for private tests with synthetic data. Public collection of real contacts is subject to the [deployment gate](TZ.md#deployment-gate).
 
 ## Under the hood

@@ -39,15 +39,15 @@ export default function Home() {
           <div className="container hero-grid">
             <div className="hero-copy">
               <p className="eyebrow">Уборка квартир и домов</p>
-              <h1 id="hero-title">Уборка дома. Понятный расчёт до заявки.</h1>
+              <h1 id="hero-title">Чистый дом начинается с <em>понятной цены.</em></h1>
               <p className="hero-description">
-                Выберите вид уборки, площадь и нужные дополнения. Покажем
-                предварительную стоимость сразу, а детали согласуем до выезда.
+                Поддерживающая, генеральная или после ремонта — выберите то, что нужно вашему дому.
+                Стоимость рассчитаем сразу, детали согласуем до выезда.
               </p>
               <a className="button button-primary" href="#calculator">
                 Рассчитать стоимость <span aria-hidden="true">↗</span>
               </a>
-              <p className="hero-note">Никаких звонков, чтобы просто узнать ориентир по цене.</p>
+              <p className="hero-note">Сначала расчёт — потом решение.</p>
             </div>
             <div className="hero-photo">
               <Image
@@ -65,16 +65,17 @@ export default function Home() {
           <section className="section calculator-section" id="calculator" aria-label="Калькулятор уборки">
             <div className="container calculator-grid">
               <div className="calculator-intro">
-                <p className="eyebrow">Расчёт стоимости</p>
-                <h2 id="calculator-title">Сколько будет стоить уборка?</h2>
+                <p className="eyebrow">Калькулятор</p>
+                <h2 id="calculator-title">Узнайте стоимость для вашего дома</h2>
                 <p>
-                  Цена зависит от площади, вида уборки и выбранных дополнений.
-                  Расчёт предварительный — итог согласуем до начала работ.
+                  Укажите площадь и вид уборки. Добавьте окна или технику внутри,
+                  если это нужно. Сумма обновится сразу.
                 </p>
                 <div className="calculator-aside" aria-label="Как считается стоимость">
-                  <strong>Что влияет на цену</strong>
-                  <span>Площадь и вид уборки</span>
-                  <span>Окна и техника внутри — только если выберете</span>
+                  <strong>Прозрачный расчёт</strong>
+                  <span>Цена зависит от площади и вида уборки.</span>
+                  <span>Дополнительные услуги учитываются отдельно.</span>
+                  <span>Итог согласуем перед началом работ.</span>
                 </div>
               </div>
               <Calculator />
@@ -85,8 +86,8 @@ export default function Home() {
             <div className="container">
               <div className="section-heading">
                 <p className="eyebrow">Виды уборки</p>
-                <h2 id="services-title">Для обычной недели, большой уборки и после ремонта</h2>
-                <p>Выберите подходящий формат в калькуляторе. Окна, холодильник и духовка внутри считаются отдельно.</p>
+                <h2 id="services-title">Уборка под вашу задачу</h2>
+                <p>Три понятных варианта — от регулярного ухода до уборки после отделки.</p>
               </div>
               <div className="services-grid">
                 {serviceOrder.map((id, index) => {
@@ -96,6 +97,7 @@ export default function Home() {
                       <span className="item-number">0{index + 1}</span>
                       <h3>{service.title}</h3>
                       <p>{service.description}</p>
+                      <p className="service-detail">{service.detail}</p>
                       <div className="service-pricing">
                         <strong>от {rubles.format(service.minPrice)} ₽</strong>
                         <span>{rubles.format(service.pricePerM2)} ₽/м²</span>
@@ -110,8 +112,8 @@ export default function Home() {
           <section className="section benefits-section" id="benefits" aria-labelledby="benefits-title">
             <div className="container benefits-layout">
               <div className="section-heading">
-                <p className="eyebrow">Спокойнее, когда всё ясно</p>
-                <h2 id="benefits-title">Договоримся о важном заранее</h2>
+                <p className="eyebrow">Для спокойствия</p>
+                <h2 id="benefits-title">Важное известно заранее</h2>
               </div>
               <ul className="benefits-grid">
                 {benefits.map((benefit, index) => (
@@ -128,7 +130,7 @@ export default function Home() {
             <div className="container">
               <div className="section-heading">
                 <p className="eyebrow">Как всё устроено</p>
-                <h2 id="steps-title">От расчёта до уборки — четыре шага</h2>
+                <h2 id="steps-title">Как всё происходит</h2>
               </div>
               <ol className="steps-list">
                 {howItWorksSteps.map((step, index) => (
@@ -144,17 +146,15 @@ export default function Home() {
           <section className="section reviews-section" id="reviews" aria-labelledby="reviews-title">
             <div className="container">
               <div className="section-heading">
-                <p className="eyebrow">Отзывы</p>
-                <h2 id="reviews-title">Что остаётся после уборки</h2>
-                <p>Примеры отзывов для демонстрации сайта. Эти истории вымышлены.</p>
+                <p className="eyebrow">После уборки</p>
+                <h2 id="reviews-title">Когда дома снова хорошо</h2>
+                <p>Иллюстративные отзывы для демонстрации сайта. Все истории вымышлены.</p>
               </div>
               <div className="reviews-grid">
                 {reviews.map((review) => (
                   <blockquote className="review" key={review.name}>
-                    <span className="rating" aria-label={`Оценка ${review.rating} из 5`}>
-                      {"★".repeat(review.rating)}
-                    </span>
-                    <p>«{review.text}»</p>
+                    <span className="review-mark" aria-hidden="true">“</span>
+                    <p>{review.text}</p>
                     <footer>{review.name}</footer>
                   </blockquote>
                 ))}
@@ -166,8 +166,8 @@ export default function Home() {
             <div className="container lead-grid">
               <div className="lead-intro">
                 <p className="eyebrow">Заявка</p>
-                <h2 id="lead-title">Расчёт готов. Осталось обсудить детали.</h2>
-                <p>Оставьте имя и телефон — согласуем объём работ, удобное время и окончательную стоимость до уборки.</p>
+                <h2 id="lead-title">Осталось договориться о деталях</h2>
+                <p>Оставьте имя и телефон. Уточним задачу, согласуем время и окончательную стоимость до выезда.</p>
                 <div className="contact-area">
                   <strong>Удобнее написать?</strong>
                   {siteMode === "portfolio" ? (
@@ -194,7 +194,7 @@ export default function Home() {
             <div className="container final-cta-inner">
               <div>
                 <p className="eyebrow">Следующий шаг</p>
-                <h2 id="final-cta-title">О цене уже есть представление. Остались детали.</h2>
+                <h2 id="final-cta-title">Пусть дома будет легче.</h2>
               </div>
               <FinalCTA />
             </div>
