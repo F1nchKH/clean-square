@@ -58,7 +58,7 @@ test("unconfigured contacts are not presented as working links", async ({ page }
   await expect(lead.getByRole("link", { name: "MAX" })).toHaveCount(0);
   await expect(footer.getByRole("link", { name: "Telegram" })).toHaveCount(0);
   await expect(footer.getByRole("link", { name: "MAX" })).toHaveCount(0);
-  await expect(lead.getByText(/после настройки контактов/)).toBeVisible();
+  await expect(lead.getByText("Контакты для переписки пока не настроены.")).toBeVisible();
 });
 
 test("portfolio contact buttons stay on the site and show a demo notice", async ({ page }) => {
