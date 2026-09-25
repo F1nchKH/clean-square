@@ -14,7 +14,7 @@ export function Calculator() {
     <div className="calculator-shell">
       <div className="shell-topline">
         <span>Ваш расчёт</span>
-        <span>01 / 02</span>
+        <span>Цена меняется сразу</span>
       </div>
       <fieldset className="calculator-fieldset">
         <legend>Вид уборки</legend>
@@ -27,8 +27,12 @@ export function Calculator() {
                 value={id}
                 checked={state.cleaningType === id}
                 onChange={() => state.setCleaningType(id)}
+                aria-labelledby={`cleaning-${id}`}
               />
-              <span>{cleaningServices[id].title}</span>
+              <span className="choice-main">
+                <span id={`cleaning-${id}`}>{cleaningServices[id].title}</span>
+                <span className="choice-description">{cleaningServices[id].description}</span>
+              </span>
             </label>
           ))}
         </div>

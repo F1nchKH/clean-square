@@ -125,7 +125,7 @@ test("form controls can be reached with keyboard and reloads without hydration e
   await page.keyboard.press("Tab");
   await expect(lead.getByRole("textbox", { name: "Телефон" })).toBeFocused();
   await page.keyboard.press("Tab");
-  await expect(lead.getByRole("checkbox", { name: liveMode ? /Согласен/ : /Демо-согласие/ })).toBeFocused();
+  await expect(lead.getByRole("checkbox", { name: liveMode ? /Согласен/ : /Согласие на обработку данных/ })).toBeFocused();
   await page.getByRole("spinbutton", { name: "Площадь, м²" }).fill("80");
   await expect(lead.getByTestId("estimated-price")).toHaveText("3 600 ₽");
   expect(hydrationErrors).toEqual([]);

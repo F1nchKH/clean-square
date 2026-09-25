@@ -71,6 +71,11 @@ export function LeadForm({ demoMode }: { demoMode: boolean }) {
 
   return (
     <form className="lead-form" onSubmit={handleSubmit} noValidate>
+      {demoMode && (
+        <p className="portfolio-notice">
+          Это демонстрационная форма. Данные не отправляются и не сохраняются — пожалуйста, не вводите реальные контакты.
+        </p>
+      )}
       <div className="lead-field">
         <label htmlFor="lead-name">Ваше имя</label>
         <input
@@ -120,7 +125,7 @@ export function LeadForm({ demoMode }: { demoMode: boolean }) {
           />
           <span>
             {demoMode
-              ? "Демо-согласие: данные не отправляются"
+              ? "Согласие на обработку данных (пример)"
               : "Согласен на обработку персональных данных"}
           </span>
         </label>
@@ -146,7 +151,7 @@ export function LeadForm({ demoMode }: { demoMode: boolean }) {
       </button>
       <p className="lead-privacy-note">
         {demoMode
-          ? "Данные не отправляются и не сохраняются. Не вводите реальные персональные данные."
+          ? "Нажатие на кнопку покажет пример состояния заявки."
           : "Демонстрационная форма. Текст согласия требует уточнения перед публичным запуском."}
       </p>
     </form>
